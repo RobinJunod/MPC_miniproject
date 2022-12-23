@@ -54,7 +54,7 @@ classdef MpcControl_z < MpcControlBase
             %% Constraints/model/cost sub_sys z
             % u in U = { u | Mu <= m } only for the Pavg
             % mpc.UserData.us == us (Pavg)
-            M = [1;-1]; m = [80-56.6666; -(50-56.6666)];
+            M = [1;-1]; m = [80-56.6666; -(50-56.6666)]; % from part1
             % model matricies
             A = mpc.A;
             B = mpc.B;
