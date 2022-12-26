@@ -67,8 +67,19 @@ classdef MpcControl_x < MpcControlBase
                     break
                 end
             end
-            [Ff,ff] = double(Xf); 
-
+            [Ff,ff] = double(Xf);
+            % Visualizing the sets
+            lab = ["{\omega}_y","{\beta}","{v_x}","x"];
+            tit = ["{X_f} projection along dimensions {\beta} and {\omega}_y","{X_f} projection along dimensions {v_x} and {\beta}","X_f projection along dimensions x and v_x"];
+            figure()
+            for i = 1:3
+                subplot(3,1,i)
+                Xf.projection(i:i+1).plot()
+                xlabel(lab(i))
+                ylabel(lab(i+1))
+                title(tit(i))
+            end
+            
             % WITH YALIMP mpc problem
             con = (X(:,2) == A*X(:,1) + B*U(:,1)) + (M*U(:,1) <= m);
             obj = U(:,1)'*R*U(:,1);

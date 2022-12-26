@@ -33,9 +33,6 @@ classdef MpcControl_x < MpcControlBase
             %       the DISCRETE-TIME MODEL of your system
             
             % SET THE PROBLEM CONSTRAINTS con AND THE OBJECTIVE obj HERE
-            obj = 0;
-            con = [];
-            
             %% Constraints sub_sys x
             % x in X = { x | Fx <= f } with x of dim 4
             F = [0 1 0 0;
@@ -67,8 +64,25 @@ classdef MpcControl_x < MpcControlBase
                     break
                 end
             end
-            [Ff,ff] = double(Xf); 
-
+            [Ff,ff] = double(Xf);
+            
+            % Visualizing the sets
+            figure();
+            Xf.projection(1:2).plot();
+            xlabel('{\omega}_y')
+            ylabel('{\beta}')
+            title('{X_f} projection along dimensions {\beta} and {\omega}_y')
+            figure();
+            Xf.projection(2:3).plot();
+            xlabel('{\beta}')
+            ylabel('{v_x}')
+            title('{X_f} projection along dimensions {v_x} and {\beta}')
+            figure();
+            Xf.projection(3:4).plot();
+            xlabel('v_x')
+            ylabel('x')
+            title('X_f projection along dimensions x and v_x')
+            
             % WITH YALIMP mpc problem
             con = (X(:,2) == A*X(:,1) + B*U(:,1)) + (M*U(:,1) <= m);
             obj = U(:,1)'*R*U(:,1);
