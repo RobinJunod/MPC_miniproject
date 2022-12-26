@@ -35,22 +35,27 @@ classdef MpcControl_roll < MpcControlBase
             % SET THE PROBLEM CONSTRAINTS con AND THE OBJECTIVE obj HERE
             obj = 0;
             con = [];
-            %% No constraints sub_sys roll 
+            
+            % u in U = { u | Mu <= m } constraints
+            M = [1;-1]; m = [20; 20];
+            % model matricies
             A = mpc.A;
             B = mpc.B;
-
-            % Compute LQR controller for unconstrained system
-            [~,Qf,~] = dlqr(A,B,Q,R);
+            % cost matricies
+            Q = 2 * eye(size(mpc.A,2));
+            R = 0.01;
 
             % WITH YALIMP mpc problem
-            con = (X(:,2) == A*X(:,1) + B*U(:,1));
+            con = (X(:,2) == A*X(:,1) + B*U(:,1)) + (M*U(:,1) <= m);
             obj = U(:,1)'*R*U(:,1);
             for i = 2:N-1
                 con = con + (X(:,i+1) == A*X(:,i) + B*U(:,i));
-                obj = obj + X(:,i)'*Q*X(:,i) + U(:,i)'*R*U(:,i);
+                con = con + (M*U(:,i) <= m);
+                u_ = U(:,i) - u_ref;
+                x_ = X(:,i) - x_ref;
+                obj = obj + x_'*Q*x_ + u_'*R*u_;
             end
-            obj = obj + X(:,N)'*Qf*X(:,N);
-            
+
             % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             
@@ -81,8 +86,19 @@ classdef MpcControl_roll < MpcControlBase
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE
             % You can use the matrices mpc.A, mpc.B, mpc.C and mpc.D
-            obj = 0;
-            con = [xs == 0, us == 0];
+            
+            % model matricies
+            A = mpc.A; B = mpc.B;
+            C = mpc.C; D = mpc.D;
+           
+            % constraints: u in U = { u | Mu <= m } 
+            M = [1;-1]; m = [20; 20];
+            con = [(xs == A*xs + B*us),...
+                   (M*us <= m)   ,...
+                   ref == C*xs + D];
+
+            % obj (R=1)
+            obj = us'*us;
             
             % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

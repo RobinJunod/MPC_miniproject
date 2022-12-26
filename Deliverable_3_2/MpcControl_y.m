@@ -41,43 +41,26 @@ classdef MpcControl_y < MpcControlBase
             F = [0 1 0 0;
                  0 -1 0 0]; 
             f = [0.1222; 0.1222];
+            % u in U = { u | Mu <= m } only for the d2
+            M = [1;-1]; m = [0.26; 0.26];
             % model matricies
             A = mpc.A;
             B = mpc.B;
             % cost matrices depending on the inupt and state
-            Q = 10 * eye(size(mpc.A,2));
-            R = 1;
+            Q = 0.1 * eye(size(mpc.A,2));
+            R = 10;
 
-            %% compute final cost final constraints
-            % Compute LQR controller for unconstrained system
-            [K,Qf,~] = dlqr(A,B,Q,R);
-            % MATLAB defines K as -K, so invert its signal
-            K = -K; 
-            % COMPUTE INVARIANT SET
-            Xf = polytope(F,f);
-            Acl = mpc.A + mpc.B*K;
-            while 1
-                prevXf = Xf;
-                [T,t] = double(Xf);
-                preXf = polytope(T*Acl,t);
-                Xf = intersect(Xf, preXf);
-                if isequal(prevXf, Xf)
-                    break
-                end
-            end
-            [Ff,ff] = double(Xf); 
 
             % WITH YALIMP mpc problem
-            con = (X(:,2) == A*X(:,1) + B*U(:,1));
+            con = (X(:,2) == A*X(:,1) + B*U(:,1)) + (M*U(:,1) <= m);
             obj = U(:,1)'*R*U(:,1);
             for i = 2:N-1
                 con = con + (X(:,i+1) == A*X(:,i) + B*U(:,i));
-                con = con + (F*X(:,i) <= f);
-                obj = obj + X(:,i)'*Q*X(:,i) + U(:,i)'*R*U(:,i);
+                con = con + (F*X(:,i) <= f) + (M*U(:,i) <= m);
+                u_ = U(:,i)-u_ref;
+                x_ = X(:,i)-x_ref;
+                obj = obj + x_'*Q*x_ + u_'*R*u_;
             end
-            % Final cost and constraints
-            con = con + (Ff*X(:,N) <= ff);
-            obj = obj + X(:,N)'*Qf*X(:,N);
 
 
             % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE
@@ -110,9 +93,24 @@ classdef MpcControl_y < MpcControlBase
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE
             % You can use the matrices mpc.A, mpc.B, mpc.C and mpc.D
-            obj = 0;
-            con = [xs == 0, us == 0];
+
+            % model matricies
+            A = mpc.A; B = mpc.B;
+            C = mpc.C; D = mpc.D;
+            % constraints
+            % x in X = { x | Fx <= f } with x of dim 4
+            F = [0 1 0 0;
+                 0 -1 0 0]; 
+            f = [0.1222; 0.1222];
+            % u in U = { u | Mu <= m } only for the d2
+            M = [1;-1]; m = [0.26; 0.26];
             
+            con = [(xs == A*xs + B*us),...
+                   (M*us <= m)   ,...
+                   (F*xs <= f)   ,...
+                   ref == C*xs + D];
+            obj = us'*us;
+
             % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             
