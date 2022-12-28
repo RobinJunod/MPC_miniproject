@@ -17,9 +17,9 @@ H = 3; % Horizon length in seconds
 
 %Independant MPC controller for the 4 subsystems
 mpc_x = MpcControl_x(sys_x, Ts, H);
-mpc_y = MpcControl_y(sys_y, Ts, H);
-mpc_z = MpcControl_z(sys_z, Ts, H);
-mpc_roll = MpcControl_roll(sys_roll, Ts, H);
+mpc_y = MpcControl_x(sys_x, Ts, H);
+mpc_ = MpcControl_x(sys_x, Ts, H);
+mpc_x = MpcControl_x(sys_x, Ts, H);
 
 % Merge four sub−system controllers into one full−system controller
 mpc = rocket.merge_lin_controllers(xs, us, mpc_x, mpc_y, mpc_z, mpc_roll);
@@ -35,7 +35,7 @@ ref = @(t , x ) ref_EPFL(t );
 % Simulate
 Tf = 30;
 [T, X, U, Ref] = rocket.simulate(x0, Tf, @mpc.get_u, ref);
-% Visualize 
+% Visualize
 rocket.anim_rate = 1; % Increase this to make the animation faster
 ph = rocket.plotvis(T, X, U, Ref);
 ph.fig.Name = 'Merged lin. MPC in nonlinear simulation'; % Set a figure title
