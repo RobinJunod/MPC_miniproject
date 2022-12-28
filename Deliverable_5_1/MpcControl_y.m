@@ -47,8 +47,13 @@ classdef MpcControl_y < MpcControlBase
             A = mpc.A;
             B = mpc.B;
             % cost matrices depending on the inupt and state
-            Q = 500 * eye(size(mpc.A,2));
-            R = 0.8;
+%             Q = 500 * eye(size(mpc.A,2));
+%             R = 0.8;
+            Q = [50 0 0 0;
+                 0 1 0 0;
+                 0 0 1 0;
+                 0 0 0 200];
+            R = 10;
 
 
             % WITH YALIMP mpc problem

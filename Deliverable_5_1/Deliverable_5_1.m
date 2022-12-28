@@ -40,7 +40,7 @@ rocket.mass = 1.794; % Manipulate mass for simulation
 % Plot pose
 rocket.anim_rate = 5; % Increase this to make the animation faster
 ph = rocket.plotvis(T, X, U, Ref);
-ph.fig.Name = 'Merged lin. MPC in nonlinear simulation with rocket mass disturbance'; % Set a figure title
+ph.fig.Name = 'Continuous-time nonlinear model in closed-loop (no estimator)'; % Set a figure title
 
 
 %% Offset-Free Tracking
@@ -49,7 +49,7 @@ ph.fig.Name = 'Merged lin. MPC in nonlinear simulation with rocket mass disturba
 % Plot pose
 rocket.anim_rate = 5; % Increase this to make the animation faster
 ph = rocket.plotvis(T, X, U, Ref);
-ph.fig.Name = 'Merged lin. MPC in nonlinear simulation with offset free tracking'; % Set a figure title
+ph.fig.Name = 'Continuous-time nonlinear model with estimator in closed-loop'; % Set a figure title
 
 
 
