@@ -36,7 +36,7 @@ classdef MpcControl_x < MpcControlBase
             obj = 0;
             con = [];
             
-            %% Constraints sub_sys x
+            %% Constraints sub_sys X with 
             % x in X = { x | Fx <= f } with x of dim 4
             F = [0 1 0 0;
                  0 -1 0 0]; 
@@ -46,51 +46,24 @@ classdef MpcControl_x < MpcControlBase
             % model matricies
             A = mpc.A;
             B = mpc.B;
-            % cost matrices depending on the inupt and state
-            Q = 0.1 * eye(size(mpc.A,2));
-            R = 10;
 
-            %% compute final cost final constraints
-            % Compute LQR controller for unconstrained system
-            [K,Qf,~] = dlqr(A,B,Q,R);
-            % MATLAB defines K as -K, so invert its signal
-            K = -K; 
-            % COMPUTE INVARIANT SET
-            Xf = polytope([F;M*K],[f;m]);
-            Acl = mpc.A + mpc.B*K;
-            while 1
-                prevXf = Xf;
-                [T,t] = double(Xf);
-                preXf = polytope(T*Acl,t);
-                Xf = intersect(Xf, preXf);
-                if isequal(prevXf, Xf)
-                    break
-                end
-            end
-            [Ff,ff] = double(Xf);
-%             % Visualizing the sets
-%             lab = ["{\omega}_y","{\beta}","{v_x}","x"];
-%             tit = ["{X_f} projection along dimensions {\beta} and {\omega}_y","{X_f} projection along dimensions {v_x} and {\beta}","X_f projection along dimensions x and v_x"];
-%             figure()
-%             for i = 1:3
-%                 subplot(3,1,i)
-%                 Xf.projection(i:i+1).plot()
-%                 xlabel(lab(i))
-%                 ylabel(lab(i+1))
-%                 title(tit(i))
-%             end
+
+            %% TO TUNE (no final set)
+            % cost matrices depending on the inupt and state
+            Q = 500 * eye(size(mpc.A,2));
+            R = 0.8;
             
             % WITH YALIMP mpc problem
             con = (X(:,2) == A*X(:,1) + B*U(:,1)) + (M*U(:,1) <= m);
-            obj = U(:,1)'*R*U(:,1);
+            obj = (U(:,1)-u_ref)'*R*(U(:,1)-u_ref);
             for i = 2:N-1
                 con = con + (X(:,i+1) == A*X(:,i) + B*U(:,i));
                 con = con + (F*X(:,i) <= f) + (M*U(:,i) <= m);
-                obj = obj + X(:,i)'*Q*X(:,i) + U(:,i)'*R*U(:,i);
+                % objective (what to minimize -> diff btwn ref and state)
+                u_ = U(:,i)-u_ref;
+                x_ = X(:,i)-x_ref;
+                obj = obj + x_'*Q*x_ + u_'*R*u_;
             end
-            % Final cost and constraints
-            con = con + (Ff*X(:,N) <= ff);
-            obj = obj + X(:,N)'*Qf*X(:,N);
 
 
             % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE
@@ -124,36 +97,25 @@ classdef MpcControl_x < MpcControlBase
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE
             % You can use the matrices mpc.A, mpc.B, mpc.C and mpc.D
-            obj = 0;
-            con = [xs == 0, us == 0];
             
-%             %% NO NEED to compute the terminal set
-%             % Constraints sub_sys x
-%             % x in X = { x | Fx <= f } with x of dim 4
-%             F = [0 1 0 0;
-%                  0 -1 0 0]; 
-%             f = [0.1222; 0.1222];
-%             % model matricies
-%             A = mpc.A;
-%             B = mpc.B;
-%             % cost matrices depending on the inupt and state
-%             Q = 10 * eye(size(mpc.A,2));
-%             R = 1;      
-% 
-%             
-%             % WITH YALIMP mpc problem
-%             con = (X(:,2) == A*X(:,1) + B*U(:,1));
-%             obj = U(:,1)'*R*U(:,1);
-%             for i = 2:N-1
-%                 con = con + (X(:,i+1) == A*X(:,i) + B*U(:,i));
-%                 con = con + (F*X(:,i) <= f);
-%                 obj = obj + X(:,i)'*Q*X(:,i) + U(:,i)'*R*U(:,i);
-%             end
-%             % Final cost and constraints
-%             con = con + (Ff*X(:,N) <= ff);
-%             obj = obj + X(:,N)'*Qf*X(:,N);
-
-
+            % model matricies
+            A = mpc.A; B = mpc.B;
+            C = mpc.C; D = mpc.D;
+            % Constraints
+            % u in U = { u | Mu <= m } : 
+            M = [1; -1] ; m = [0.26; 0.26];
+            % x in X = { x | Fx <= f }
+            % F*d_x <= 0.1222 - 0
+            F = [0 1 0 0;
+                0 -1 0 0]; 
+            f = [0.1222;0.1222];
+            
+            
+            con = [(xs == A*xs + B*us),...
+                   (M*us <= m)   ,...
+                   (F*xs <= f)   ,...
+                   ref == C*xs + D];
+            obj = us'*us;
 
             % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
