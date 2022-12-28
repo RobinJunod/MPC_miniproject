@@ -58,9 +58,11 @@ classdef MpcControl_z < MpcControlBase
             A = mpc.A;
             B = mpc.B;
             % cost matrices depending on the inupt and state
-            Q = 10 * eye(size(mpc.A,2));
-            Q(4) = 140;
-            R = 0.7;
+%             Q = 10 * eye(size(mpc.A,2));
+%             Q(4) = 140;
+%             R = 0.7;
+            Q = [50  0; 0 700];
+            R = 1;
             
 %             [K,~,~] = dlqr(mpc.A,mpc.B,Q,R);
 %             K = -K;

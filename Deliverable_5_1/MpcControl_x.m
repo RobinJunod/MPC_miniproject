@@ -50,8 +50,13 @@ classdef MpcControl_x < MpcControlBase
 
             %% TO TUNE (no final set)
             % cost matrices depending on the inupt and state
-            Q = 500 * eye(size(mpc.A,2));
-            R = 0.8;
+%             Q = 500 * eye(size(mpc.A,2));
+%             R = 0.8;
+            Q = [50 0 0 0;
+                 0 1 0 0;
+                 0 0 1 0;
+                 0 0 0 200];
+            R = 10;
             
             % WITH YALIMP mpc problem
             con = (X(:,2) == A*X(:,1) + B*U(:,1)) + (M*U(:,1) <= m);

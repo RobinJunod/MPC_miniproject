@@ -42,7 +42,7 @@ classdef MpcControl_roll < MpcControlBase
             A = mpc.A;
             B = mpc.B;
             % cost matricies
-            Q = 80 * eye(size(mpc.A,2));
+            Q = 50 * eye(size(mpc.A,2));
             R = 0.01;
 
             % WITH YALIMP mpc problem
