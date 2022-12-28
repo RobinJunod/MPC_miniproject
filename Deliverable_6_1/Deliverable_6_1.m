@@ -1,47 +1,48 @@
 addpath(fullfile('..', 'src'));
 
-%% TODO: This file should produce all the plots for the deliverable
-
-%% MPC reference with default maximum roll = 15 deg
-Ts = 1/20;
+%% MPC reference
+clear all ;close all ;clc
+Ts = 1/10;
 rocket = Rocket(Ts);
-H = 3; % Horizon length in seconds
-
+H = 3; % Horizon length in second
 nmpc = NmpcControl(rocket, H);
 
-%% Evaluate once and plot optimal open−loop trajectory,
+%% Evaluate once and plot optimal open−loop trajectory
 % pad last input to get consistent size with time and state
 % (w, phi, v, p) Initial state
 x0 = [deg2rad([0 0 0, 0 0 0]), 0 0 0, 0 0 0]';
-ref = [10 0 0 0]';
+ref = [0 0 4 0]';
 [u, T_opt, X_opt, U_opt] = nmpc.get_u(x0, ref);
-%%
-ph = rocket.plotvis(T_opt, X_opt, U_opt, ref);
-%% open loop
-%ref = @(t_, x_) ref_EPFL(t_);
-ref = [10 0 0 0]';
+% open loop plot
 U_opt(:,end+1) = nan;
 ph = rocket.plotvis(T_opt, X_opt, U_opt, ref);
 
-%% plot in closed loop
+%% plot in closed loop with max roll = 15
 Tf = 30;
+x0 = [deg2rad([0 0 0, 0 0 0]), 0 0 0, 0 0 0]';
 ref = @(t_, x_) ref_EPFL(t_);
 [T, X, U, Ref] = rocket.simulate(x0, Tf, @nmpc.get_u, ref);
 
+% Plot pose
+rocket.anim_rate = 1; % Increase this to make the animation faster
+ph = rocket.plotvis(T, X, U, Ref);
+ph.fig.Name = 'NMPC in nonlinear simulation (default {\gamma}_{ref}=15 deg)'; % Set a figure title
 
-%% With default max roll = 50
-Ts = 1/20;
-rocket = Rocket(Ts);
-H = 3; % Horizon length in seconds
-nmpc = NmpcControl(rocket, H);
+
+%% With max roll = 50
 
 % MPC reference with specified maximum roll = 50 deg
 roll_max = deg2rad(50);
 ref = @(t_, x_) ref_EPFL(t_, roll_max);
+Tf = 30;
+[T, X, U, Ref] = rocket.simulate(x0, Tf, @nmpc.get_u, ref);
 
+
+
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Evaluate once and plot optimal open−loop trajectory,
 % pad last input to get consistent size with time and state
-[u, T_opt, X_opt, U_opt] = nmpc.get_u(x, ref);
+%[u, T_opt, X_opt, U_opt] = nmpc.get_u(x, ref);
 U_opt(:,end+1) = nan;
 ph = rocket.plotvis(T_opt, X_opt, U_opt, ref);
 Tf = 30;
