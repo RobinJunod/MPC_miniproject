@@ -17,7 +17,7 @@ sys = rocket.linearize(xs, us);
 % create sub system
 [sys_x, sys_y, sys_z, sys_roll] = rocket.decompose(sys, xs, us);
 
-H = 3; % Horizon length in seconds
+H = 10; % Horizon length in seconds
 
 % Define the four MPC controllers
 mpc_x = MpcControl_x(sys_x, Ts, H);

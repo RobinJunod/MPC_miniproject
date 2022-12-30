@@ -18,7 +18,7 @@ sys = rocket.linearize(xs, us);
 [sys_x, sys_y, sys_z, sys_roll] = rocket.decompose(sys, xs, us);
 
 
-H = 5; % Horizon length in secondsH = 3; % Horizon length in seconds
+H = 3; % Horizon length in secondsH = 3; % Horizon length in seconds
 
 %% Design MPC controller for subsystem X
 
@@ -39,7 +39,7 @@ ph_x = rocket.plotvis_sub(T_opt_x, X_opt_x, U_opt_x, sys_x, xs, us); % Plot as u
 %Simulate and plot
 [T_x, X_sub_x, U_sub_x] = rocket.simulate_f(sys_x, x0_x, Tf, @mpc_x.get_u, 0); 
 ph_xc = rocket.plotvis_sub(T_x, X_sub_x, U_sub_x, sys_x, xs, us);
-saveas(ph_xc.fig,'cl_x.png');
+saveas(ph_xc.fig,'cl_x2.png');
 
 %% Design MPC controller for subsystem Y
 
