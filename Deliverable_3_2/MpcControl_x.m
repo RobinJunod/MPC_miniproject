@@ -100,7 +100,7 @@ classdef MpcControl_x < MpcControlBase
             
             % model matricies
             A = mpc.A; B = mpc.B;
-            C = mpc.C; D = mpc.D;
+            C = mpc.C; 
             % Constraints
             % u in U = { u | Mu <= m } : 
             M = [1; -1] ; m = [0.26; 0.26];
@@ -114,7 +114,7 @@ classdef MpcControl_x < MpcControlBase
             con = [(xs == A*xs + B*us),...
                    (M*us <= m)   ,...
                    (F*xs <= f)   ,...
-                   ref == C*xs + D];
+                   ref == C*xs];
             obj = us'*us;
 
             % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE
