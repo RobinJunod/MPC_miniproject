@@ -2,16 +2,17 @@ addpath(fullfile('..', 'src'));
 
 %% MPC reference
 clear all ;close all ;clc
-Ts = 1/10;
+Ts = 1/20;
 rocket = Rocket(Ts);
-H = 3; % Horizon length in second
+
+H = 2; % Horizon length in second
 nmpc = NmpcControl(rocket, H);
 
 %% Evaluate once and plot optimal open−loop trajectory
 % pad last input to get consistent size with time and state
 % (w, phi, v, p) Initial state
 x0 = [deg2rad([0 0 0, 0 0 0]), 0 0 0, 0 0 0]';
-ref = [0 0 4 0]';
+ref = [0 0 1 0]';
 [u, T_opt, X_opt, U_opt] = nmpc.get_u(x0, ref);
 % open loop plot
 U_opt(:,end+1) = nan;
@@ -24,7 +25,7 @@ ref = @(t_, x_) ref_EPFL(t_);
 [T, X, U, Ref] = rocket.simulate(x0, Tf, @nmpc.get_u, ref);
 
 % Plot pose
-rocket.anim_rate = 1; % Increase this to make the animation faster
+rocket.anim_rate = 5; % Increase this to make the animation faster
 ph = rocket.plotvis(T, X, U, Ref);
 ph.fig.Name = 'NMPC in nonlinear simulation (default {\gamma}_{ref}=15 deg)'; % Set a figure title
 
@@ -37,7 +38,10 @@ ref = @(t_, x_) ref_EPFL(t_, roll_max);
 Tf = 30;
 [T, X, U, Ref] = rocket.simulate(x0, Tf, @nmpc.get_u, ref);
 
-
+% Plot pose
+rocket.anim_rate = 5; % Increase this to make the animation faster
+ph = rocket.plotvis(T, X, U, Ref);
+ph.fig.Name = 'NMPC in nonlinear simulation (default {\gamma}_{ref}=50 deg)'; % Set a figure title
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Evaluate once and plot optimal open−loop trajectory,
