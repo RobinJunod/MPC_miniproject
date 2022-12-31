@@ -47,8 +47,6 @@ classdef NmpcControl < handle
             %xdot = rocket.f(X_sym,U_sym);
 
 
-            %% Cost
-            cost = 0;
             
             %% Equality constraints (Casadi SX), each entry == 0
             % eq_constr = [eq_constr; <new constriants>];
@@ -70,28 +68,10 @@ classdef NmpcControl < handle
             % Beta < 80 degree
             ineq_constr = [ineq_constr; X_sym(5,:)' - deg2rad(80)];
             ineq_constr = [ineq_constr; -X_sym(5,:)' - deg2rad(80)];
-            % others constraints stay the same
-            %%d1
-            %ineq_constr = [ineq_constr; U_sym(1,:)' - 0.26];
-            %ineq_constr = [ineq_constr; -U_sym(1,:)' - 0.26];
-            %%d2
-            %ineq_constr = [ineq_constr; U_sym(2,:)' - 0.26];
-            %ineq_constr = [ineq_constr; -U_sym(2,:)' - 0.26];
-            %%Pavg
-            %ineq_constr = [ineq_constr; U_sym(3,:)' - 80];
-            %ineq_constr = [ineq_constr; -U_sym(3,:)' + 50];
-            %%Pdiff
-            %ineq_constr = [ineq_constr; U_sym(4,:)' - 20];
-            %ineq_constr = [ineq_constr; -U_sym(4,:)' - 20];
-           
 
             % For box constraints on state and input, overwrite entries of
             % lbx, ubx, lbu, ubu defined above
-
-            %% Write inequality constraints here
-            %% beta
-            %ubx(5) = deg2rad(80);
-            %lbx(5) = -deg2rad(80);
+            %% Inequality Input constraints here
             % inputs
             % d1
             ubu(1) = 0.26;
@@ -106,7 +86,7 @@ classdef NmpcControl < handle
             ubu(4) = 20;
             lbu(4) = -20;            
 
-            % COST
+            %% COST
             % linearization
             [xs, us] = rocket.trim();
             sys = rocket.linearize(xs, us);
@@ -120,23 +100,7 @@ classdef NmpcControl < handle
                  0 0 0 0.1];% Pdiff
             [~,Qf,~] = dlqr(sys.A,sys.B,Q,R);
             
-            %cost = 50*(X_sym(10,:)-ref_sym(1))*(X_sym(10,:)-ref_sym(1))' + ... %min. x error
-            %       50*(X_sym(11,:)-ref_sym(2))*(X_sym(11,:)-ref_sym(2))' + ... %min. y error
-            %       300*(X_sym(12,:)-ref_sym(3))*(X_sym(12,:)-ref_sym(3))' + ...%min. z error
-            %       25*(X_sym(6,:)-ref_sym(4))*(X_sym(6,:)-ref_sym(4))' + ...   %min. roll error
-            %       50*(X_sym(9,:)-xs(9))*(X_sym(9,:)-xs(9))'+ ...              %min. v_z error
-            %       5*(X_sym(1,:)-xs(1))*(X_sym(1,:)-xs(1))'+ ...               %min. w_x error
-            %       5*(X_sym(2,:)-xs(2))*(X_sym(2,:)-xs(2))'+ ...               %min. w_y error
-            %       5*(X_sym(3,:)-xs(3))*(X_sym(3,:)-xs(3))'+ ...               %min. w_z error
-            %       5*(X_sym(4,:)-xs(4))*(X_sym(4,:)-xs(4))'+...                %min. alpha error
-            %       5*(X_sym(5,:)-xs(5))*(X_sym(5,:)-xs(5))'+...                %min. beta error
-            %       5*(X_sym(7,:)-xs(7))*(X_sym(7,:)-xs(7))' + ...              %min. v_x error
-            %       5*(X_sym(8,:)-xs(8))*(X_sym(8,:)-xs(8))';             %min. v_y error
-                   %0.1*trace((U_sym-us)'*R*(U_sym-us));                       %min input
-             
-            %      X_sym(:,N)'*Qf*X_sym(:,N);                                  % terminal cost
-            
-            % new cost fucntion (hand made)
+            % Cost fucntion (hand made)
             % Terminal cost, custom state cost, input cost must be
             % differents
             N_ = N-1;
