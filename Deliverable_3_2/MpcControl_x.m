@@ -55,7 +55,7 @@ classdef MpcControl_x < MpcControlBase
             
             % WITH YALIMP mpc problem
             con = (X(:,2) == A*X(:,1) + B*U(:,1)) + (M*U(:,1) <= m);
-            obj = U(:,1)'*R*U(:,1);
+            obj = (U(:,1)-u_ref)'*R*(U(:,1)-u_ref);
             for i = 2:N-1
                 con = con + (X(:,i+1) == A*X(:,i) + B*U(:,i));
                 con = con + (F*X(:,i) <= f) + (M*U(:,i) <= m);
@@ -100,7 +100,7 @@ classdef MpcControl_x < MpcControlBase
             
             % model matricies
             A = mpc.A; B = mpc.B;
-            C = mpc.C; D = mpc.D;
+            C = mpc.C; 
             % Constraints
             % u in U = { u | Mu <= m } : 
             M = [1; -1] ; m = [0.26; 0.26];
@@ -114,7 +114,7 @@ classdef MpcControl_x < MpcControlBase
             con = [(xs == A*xs + B*us),...
                    (M*us <= m)   ,...
                    (F*xs <= f)   ,...
-                   ref == C*xs + D];
+                   ref == C*xs];
             obj = us'*us;
 
             % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE

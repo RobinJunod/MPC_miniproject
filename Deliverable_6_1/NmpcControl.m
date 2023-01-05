@@ -43,14 +43,14 @@ classdef NmpcControl < handle
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%solve
             % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE
-            
-            % Cost
-            cost = 0;
-            % Equality constraints (Casadi SX), each entry == 0
-            eq_constr = [ ; ];
-            % eq_constr = [eq_constr; <new constriants>];
-            % eq_constr = [eq_constr; X_sym(2:4,1234) - [1; 2; 3]];
+            % Define system dynamics
+            %xdot = rocket.f(X_sym,U_sym);
 
+
+            
+            %% Equality constraints (Casadi SX), each entry == 0
+            % eq_constr = [eq_constr; <new constriants>];
+            eq_constr = [ ; ];
             % discretize the system
             h = 0.1;
             f = @(x,u) rocket.f(x,u);
@@ -59,25 +59,20 @@ classdef NmpcControl < handle
                 if k == 1
                     eq_constr = [eq_constr,X_sym(:,k) - x0_sym(:)];
                 end
+                %x_next = f_discrete(x0_sym,0);
                 eq_constr = [eq_constr; X_sym(:,k+1) - f_discrete(X_sym(:,k), U_sym(:,k))];
             end
 
-            % Inequality constraints (Casadi SX), each entry <= 0
+            %% Inequality constraints (Casadi SX), each entry <= 0
             ineq_constr = [ ; ];
             % Beta < 80 degree
-            % others constraints stay the same
-            
+            ineq_constr = [ineq_constr; X_sym(5,:)' - deg2rad(80)];
+            ineq_constr = [ineq_constr; -X_sym(5,:)' - deg2rad(80)];
 
             % For box constraints on state and input, overwrite entries of
             % lbx, ubx, lbu, ubu defined above
-            % constraints on state:
-            % alpha
-            ubx(4) = 0.1222;
-            lbx(4) = -0.1222;
-            % beta
-            ubx(5) = 0.1222;
-            lbx(5) = -0.1222;
-            % constraints on input:
+            %% Inequality Input constraints here
+            % inputs
             % d1
             ubu(1) = 0.26;
             lbu(1) = -0.26;
@@ -86,39 +81,55 @@ classdef NmpcControl < handle
             lbu(2) = -0.26;
             % Pavg
             ubu(3) = 80;
-            lbu(3) = 50;            
+            lbu(3) = 50;
             % Pdiff
             ubu(4) = 20;
-            lbu(4) = -20;
-            
-           
-            % Define system dynamics
-            %xdot = rocket.f(X_sym,U_sym);
+            lbu(4) = -20;            
 
-            %x_next = f_discrete(x0_sym,0);
+            %% COST
+            % linearization
             [xs, us] = rocket.trim();
-
-
-            % inequality constraints
+            sys = rocket.linearize(xs, us);
+            %Terminal cost can be very usefull
+            %define A B Q R
+            Q = eye(size(sys.A,2));
+            Q = Q .* [5 5 5 5 5 25 5 5 40 50 50 200]';
+            R = [1 0 0 0; % d1
+                 0 1 0 0; % d2
+                 0 0 1 0; % Pavg
+                 0 0 0 0.1];% Pdiff
+            [~,Qf,~] = dlqr(sys.A,sys.B,Q,R);
             
+            % Cost fucntion (hand made)
+            % Terminal cost, custom state cost, input cost must be
+            % differents
+            N_ = N-1;
+            cost = Q(1,1) * (X_sym(1,1:N_)-xs(1))*(X_sym(1,1:N_)-xs(1))'+ ...                     %min. w_x error
+                   Q(2,2) * (X_sym(2,1:N_)-xs(2))*(X_sym(2,1:N_)-xs(2))'+ ...                     %min. w_y error
+                   Q(3,3) * (X_sym(3,1:N_)-xs(3))*(X_sym(3,1:N_)-xs(3))'+ ...                     %min. w_z error
+                   Q(4,4) * (X_sym(4,1:N_)-xs(4))*(X_sym(4,1:N_)-xs(4))'+...                      %min. alpha error
+                   Q(5,5) * (X_sym(5,1:N_)-xs(5))*(X_sym(5,1:N_)-xs(5))'+...                      %min. beta error
+                   Q(6,6) * (X_sym(6,1:N_)-ref_sym(4))*(X_sym(6,1:N_)-ref_sym(4))' + ...          %min. roll error
+                   Q(7,7) * (X_sym(7,1:N_)-xs(7))*(X_sym(7,1:N_)-xs(7))'+...                      %min. beta error
+                   Q(8,8) * (X_sym(8,1:N_)-xs(8))*(X_sym(8,1:N_)-xs(8))' + ...                    %min. v_y error
+                   Q(9,9) * (X_sym(9,1:N_)-xs(9))*(X_sym(9,1:N_)-xs(9))' + ...                    %min. v_z error     
+                   Q(10,10) * (X_sym(10,1:N_)-ref_sym(1))*(X_sym(10,1:N_)-ref_sym(1))' + ...      %min. x error
+                   Q(11,11) * (X_sym(11,1:N_)-ref_sym(2))*(X_sym(11,1:N_)-ref_sym(2))' + ...      %min. y error
+                   Q(12,12) * (X_sym(12,1:N_)-ref_sym(3))*(X_sym(12,1:N_)-ref_sym(3))' + ...      %min. z error
+                   Qf(1,1) * (X_sym(1,N)-xs(1))*(X_sym(1,N)-xs(1))+ ...                       % FINAL COST min. w_x error
+                   Qf(2,2) * (X_sym(2,N)-xs(2))*(X_sym(2,N)-xs(2))+ ...                       %min. w_y error
+                   Qf(3,3) * (X_sym(3,N)-xs(3))*(X_sym(3,N)-xs(3))+ ...                       %min. w_z error
+                   Qf(4,4) * (X_sym(4,N)-xs(4))*(X_sym(4,N)-xs(4))+...                        %min. alpha error
+                   Qf(5,5) * (X_sym(5,N)-xs(5))*(X_sym(5,N)-xs(5))+...                        %min. beta error
+                   Qf(6,6) * (X_sym(6,N)-ref_sym(4))*(X_sym(6,N)-ref_sym(4)) + ...            %min. roll error
+                   Qf(7,7) * (X_sym(7,N)-xs(7))*(X_sym(7,N)-xs(7))+...                        %min. beta error
+                   Qf(8,8) * (X_sym(8,N)-xs(8))*(X_sym(8,N)-xs(8)) +...                      %min. v_y error
+                   Qf(9,9) * (X_sym(9,N)-xs(9))*(X_sym(9,N)-xs(9)) +...                   %min. v_z error     
+                   Qf(10,10) * (X_sym(10,N)-ref_sym(1))*(X_sym(10,N)-ref_sym(1)) +...        %min. x error
+                   Qf(11,11) * (X_sym(11,N)-ref_sym(2))*(X_sym(11,N)-ref_sym(2)) +...        %min. y error
+                   Qf(12,12) * (X_sym(12,N)-ref_sym(3))*(X_sym(12,N)-ref_sym(3));             %min. z error
             
-            % cost
-            R = speye(4);
-            cost = 50*(X_sym(10,:)-ref_sym(1))*(X_sym(10,:)-ref_sym(1))' + ...         %min. x error
-                           50*(X_sym(11,:)-ref_sym(2))*(X_sym(11,:)-ref_sym(2))' + ... %min. y error
-                           200*(X_sym(12,:)-ref_sym(3))*(X_sym(12,:)-ref_sym(3))' + ...%min. z error
-                           25*(X_sym(6,:)-ref_sym(4))*(X_sym(6,:)-ref_sym(4))' + ...   %min. roll error
-                           50*(X_sym(9,:)-xs(9))*(X_sym(9,:)-xs(9))'+ ...              %min. v_z error
-                           5*(X_sym(1,:)-xs(1))*(X_sym(1,:)-xs(1))'+ ...               %min. w_x error
-                           5*(X_sym(2,:)-xs(2))*(X_sym(2,:)-xs(2))'+ ...               %min. w_y error
-                           5*(X_sym(3,:)-xs(3))*(X_sym(3,:)-xs(3))'+ ...               %min. w_z error
-                           5*(X_sym(4,:)-xs(4))*(X_sym(4,:)-xs(4))'+...                %min. alpha error
-                           5*(X_sym(5,:)-xs(5))*(X_sym(5,:)-xs(5))'+...                %min. beta error
-                           5*(X_sym(7,:)-xs(7))*(X_sym(7,:)-xs(7))' + ...              %min. v_x error
-                           5*(X_sym(8,:)-xs(8))*(X_sym(8,:)-xs(8))' + ...              %min. v_y error
-                           trace((U_sym-us)'*R*(U_sym-us));                            %min inputs error
-
-
+                   
             % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             
