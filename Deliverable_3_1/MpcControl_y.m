@@ -68,36 +68,17 @@ classdef MpcControl_y < MpcControlBase
                 end
             end
             [Ff,ff] = double(Xf);
-            
-%             % Visualizing the sets
-%             lab = ["{\omega}_x","{\alpha}","{v_y}","y"];
-%             tit = ["{X_f} projection along dimensions {\alpha} and {\omega}_x","{X_f} projection along dimensions {v_y} and {\alpha}","X_f projection along dimensions y and v_y"];
-%             figure()
-%             for i = 1:3
-%                 subplot(3,1,i)
-%                 Xf.projection(i:i+1).plot()
-%                 xlabel(lab(i))
-%                 ylabel(lab(i+1))
-%                 title(tit(i))
-%             end
- % Prepare figure
+
+            % Prepare figure
             lab = ["{\omega}_x","{\alpha}","{v_y}","y"];
             tit = ["{X_f} projection along dimensions {\alpha} and {\omega}_x","{X_f} projection along dimensions {v_y} and {\alpha}","X_f projection along dimensions y and v_y","X_f projection along dimensions {\omega}_x and y"];
             figure()
-            pause
-            for i = 1:4
-                subplot(2,2,i)
-                %pause(1)
-                if i == 4
-                    Xf.projection([4 1]).plot()
-                    ylabel(lab(1))
-                else
-                    Xf.projection(i:i+1).plot()
-                    ylabel(lab(i+1))
-                end
+            for i = 1:3
+                subplot(1,3,i)
+                Xf.projection(i:i+1).plot()
+                ylabel(lab(i+1))
                 xlabel(lab(i))
                 title(tit(i))
-                %pause(1)
             end
 
             % WITH YALIMP mpc problem

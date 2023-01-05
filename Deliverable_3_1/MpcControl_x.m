@@ -58,56 +58,30 @@ classdef MpcControl_x < MpcControlBase
             % COMPUTE INVARIANT SET
             Xf = polytope([F;M*K],[f;m]);
             Acl = A + B*K;
+
+            while 1
+                prevXf = Xf;
+                [T,t] = double(Xf);
+                preXf = polytope(T*Acl,t);
+                Xf = intersect(Xf, preXf);
+                if isequal(prevXf, Xf)
+                    break
+                end
+            end
+            [Ff,ff] = double(Xf);
             
-            % MPT version
-            sysX = LTISystem('A',A,'B',B);
-            sysX.x.min = [-Inf;-0.1222;-Inf;-Inf]; sysX.x.max = [Inf;0.1222;Inf;Inf];
-            sysX.u.min = [-0.26]; sysX.u.max = [0.26];
-            sysX.x.penalty = QuadFunction(Q); sysX.u.penalty = QuadFunction(R);
-            Xf = sysX.LQRSet;
-            %Qf = sysX.LQRPenalty;
-            Ff = Xf.A;
-            ff = Xf.b;
-            %[Ff,ff] = double(Xf);
+            %%%%%%%%% Invariant set plots %%%%%%%%
             % Prepare figure
-%             lab = ["{\omega}_y","{\beta}","{v_x}","x"];
-%             tit = ["{X_f} projection along dimensions {\beta} and {\omega}_y","{X_f} projection along dimensions {v_x} and {\beta}","X_f projection along dimensions x and v_x","X_f projection along dimensions {\omega}_y and x"];
-%             figure()
-%             pause
-%             for i = 1:4
-%                 subplot(2,2,i)
-%                 %pause(1)
-%                 if i == 4
-%                     Xf.projection([4 1]).plot()
-%                     ylabel(lab(1))
-%                 else
-%                     Xf.projection(i:i+1).plot()
-%                     ylabel(lab(i+1))
-%                 end
-%                 xlabel(lab(i))
-%                 title(tit(i))
-%                 %pause(1)
-%             end
-%             while 1
-%                 prevXf = Xf;
-%                 [T,t] = double(Xf);
-%                 preXf = polytope(T*Acl,t);
-%                 Xf = intersect(Xf, preXf);
-%                 if isequal(prevXf, Xf)
-%                     break
-%                 end
-%                 % Visualizing the sets
-%                 for i = 1:3
-%                     subplot(3,1,i)
-%                     Xf.projection(i:i+1).plot()
-%                     xlabel(lab(i))
-%                     ylabel(lab(i+1))
-%                     title(tit(i))
-%                 end
-%                 pause(0.2)
-%             end
-%             [Ff,ff] = double(Xf);
-            
+            lab = ["{\omega}_y","{\beta}","{v_x}","x"];
+            tit = ["{X_f} projection along dimensions {\beta} and {\omega}_y","{X_f} projection along dimensions {v_x} and {\beta}","X_f projection along dimensions x and v_x","X_f projection along dimensions {\omega}_y and x"];
+            figure()
+            for i = 1:3
+                subplot(1,3,i)
+                Xf.projection(i:i+1).plot()
+                ylabel(lab(i+1))
+                xlabel(lab(i))
+                title(tit(i))
+            end
             
             % WITH YALIMP mpc problem
             con = (X(:,2) == A*X(:,1) + B*U(:,1)) + (M*U(:,1) <= m);

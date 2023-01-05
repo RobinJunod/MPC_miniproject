@@ -164,8 +164,6 @@ classdef MpcControl_z < MpcControlBase
             
             assert((Ra == size(A_bar,1)), "The system is not observable")
             
-            %We want the estimator dynamics to be 10x faster than the
-            %plant dynamics
             
             L = -place(A_bar',C_bar',[0.01,0.1,0.2])';
         
