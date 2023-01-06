@@ -17,7 +17,7 @@ sys = rocket.linearize(xs, us);
 % create sub system
 [sys_x, sys_y, sys_z, sys_roll] = rocket.decompose(sys, xs, us);
 
-H = 10; % Horizon length in seconds
+H = 3; % Horizon length in seconds
 
 % Define the four MPC controllers
 mpc_x = MpcControl_x(sys_x, Ts, H);
@@ -31,16 +31,16 @@ mpc = rocket.merge_lin_controllers(xs, us, mpc_x, mpc_y, mpc_z, mpc_roll);
 ref = @(t_ , x_) ref_EPFL(t_);
 x0 = zeros(size(sys.A,1),1);
 
-rocket.mass = 1.794; % Manipulate mass for simulation
+rocket.mass = 2.0;%1.794; % Manipulate mass for simulation
 
 
 %% Without offset-free tracking (4.1)
-[T, X, U, Ref] = rocket.simulate(x0, Tf, @mpc.get_u, ref);
-
-% Plot pose
-rocket.anim_rate = 5; % Increase this to make the animation faster
-ph = rocket.plotvis(T, X, U, Ref);
-ph.fig.Name = 'Continuous-time nonlinear model in closed-loop (no estimator)'; % Set a figure title
+% [T, X, U, Ref] = rocket.simulate(x0, Tf, @mpc.get_u, ref);
+% 
+% % Plot pose
+% rocket.anim_rate = 5; % Increase this to make the animation faster
+% ph = rocket.plotvis(T, X, U, Ref);
+% ph.fig.Name = 'Continuous-time nonlinear model in closed-loop (no estimator)'; % Set a figure title
 
 
 %% Offset-Free Tracking

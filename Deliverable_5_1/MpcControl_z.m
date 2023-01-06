@@ -151,9 +151,11 @@ classdef MpcControl_z < MpcControlBase
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE
             % You can use the matrices mpc.A, mpc.B, mpc.C and mpc.D
+            
             A = mpc.A;
             B = mpc.B;
             C = mpc.C;
+            % Bd = B, Cd = 0
             
             A_bar = [A, B; zeros(1,size(A,2)), 1];
             B_bar = [B; zeros(1,size(B,2))];
@@ -161,11 +163,12 @@ classdef MpcControl_z < MpcControlBase
             
             Mo = ctrb(A_bar',C_bar');
             Ra = rank(Mo);
+            augSS = [A-eye(size(A,2)), B; C, 0];
+            RaSS = rank(augSS);
+            assert((Ra == size(A_bar,2)), "The system is not observable")
+            assert((RaSS == size(augSS,2)), "The system is not observable")
             
-            assert((Ra == size(A_bar,1)), "The system is not observable")
-            
-            
-            L = -place(A_bar',C_bar',[0.01,0.1,0.2])';
+            L = -place(A_bar',C_bar',[0.1,0.2,0.3])';
         
             
             % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE
