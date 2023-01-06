@@ -61,8 +61,8 @@ classdef MpcControl_z < MpcControlBase
 %             Q = 10 * eye(size(mpc.A,2));
 %             Q(4) = 140;
 %             R = 0.7;
-            Q = [50  0; 0 700];
-            R = 1;
+            Q = [50  0; 0 700]; %wz 50 z 700
+            R = 1;%0.7;%1;
             
 %             [K,~,~] = dlqr(mpc.A,mpc.B,Q,R);
 %             K = -K;
@@ -168,7 +168,7 @@ classdef MpcControl_z < MpcControlBase
             assert((Ra == size(A_bar,2)), "The system is not observable")
             assert((RaSS == size(augSS,2)), "The system is not observable")
             
-            L = -place(A_bar',C_bar',[0.1,0.2,0.3])';
+            L = -place(A_bar',C_bar',[0.3,0.15,0.6])';%0.01,0.05,0.1 works at 1.8 mass
         
             
             % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE
