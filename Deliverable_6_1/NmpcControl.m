@@ -93,11 +93,11 @@ classdef NmpcControl < handle
             %Terminal cost can be very usefull
             %define A B Q R
             Q = eye(size(sys.A,2));
-            Q = Q .* [5 5 5 5 5 25 5 5 40 50 50 200]';
-            R = [1 0 0 0; % d1
-                 0 1 0 0; % d2
-                 0 0 1 0; % Pavg
-                 0 0 0 0.1];% Pdiff
+            Q = Q .* [5 5 5 5 5 25 5 5 40 50 50 250]';
+            R = [0.3 0 0 0; % d1
+                 0 0.3 0 0; % d2
+                 0 0 0.01 0; % Pavg
+                 0 0 0 0.03];% Pdiff
             [~,Qf,~] = dlqr(sys.A,sys.B,Q,R);
             
             % Cost fucntion (hand made)
@@ -123,12 +123,12 @@ classdef NmpcControl < handle
                    Qf(5,5) * (X_sym(5,N)-xs(5))*(X_sym(5,N)-xs(5))+...                        %min. beta error
                    Qf(6,6) * (X_sym(6,N)-ref_sym(4))*(X_sym(6,N)-ref_sym(4)) + ...            %min. roll error
                    Qf(7,7) * (X_sym(7,N)-xs(7))*(X_sym(7,N)-xs(7))+...                        %min. beta error
-                   Qf(8,8) * (X_sym(8,N)-xs(8))*(X_sym(8,N)-xs(8)) +...                      %min. v_y error
-                   Qf(9,9) * (X_sym(9,N)-xs(9))*(X_sym(9,N)-xs(9)) +...                   %min. v_z error     
-                   Qf(10,10) * (X_sym(10,N)-ref_sym(1))*(X_sym(10,N)-ref_sym(1)) +...        %min. x error
-                   Qf(11,11) * (X_sym(11,N)-ref_sym(2))*(X_sym(11,N)-ref_sym(2)) +...        %min. y error
-                   Qf(12,12) * (X_sym(12,N)-ref_sym(3))*(X_sym(12,N)-ref_sym(3));             %min. z error
-            
+                   Qf(8,8) * (X_sym(8,N)-xs(8))*(X_sym(8,N)-xs(8)) +...                       %min. v_y error
+                   Qf(9,9) * (X_sym(9,N)-xs(9))*(X_sym(9,N)-xs(9)) +...                       %min. v_z error     
+                   Qf(10,10) * (X_sym(10,N)-ref_sym(1))*(X_sym(10,N)-ref_sym(1)) +...         %min. x error
+                   Qf(11,11) * (X_sym(11,N)-ref_sym(2))*(X_sym(11,N)-ref_sym(2)) +...         %min. y error
+                   Qf(12,12) * (X_sym(12,N)-ref_sym(3))*(X_sym(12,N)-ref_sym(3)) +...         %min. z error
+                   trace((U_sym-us)'*R*(U_sym-us));                                      %min inputs error
                    
             % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
