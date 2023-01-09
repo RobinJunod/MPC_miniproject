@@ -57,7 +57,8 @@ classdef MpcControl_x < MpcControlBase
             K = -K; 
             % COMPUTE INVARIANT SET
             Xf = polytope([F;M*K],[f;m]);
-            Acl = mpc.A + mpc.B*K;
+            Acl = A + B*K;
+
             while 1
                 prevXf = Xf;
                 [T,t] = double(Xf);
@@ -68,17 +69,19 @@ classdef MpcControl_x < MpcControlBase
                 end
             end
             [Ff,ff] = double(Xf);
-%             % Visualizing the sets
-%             lab = ["{\omega}_y","{\beta}","{v_x}","x"];
-%             tit = ["{X_f} projection along dimensions {\beta} and {\omega}_y","{X_f} projection along dimensions {v_x} and {\beta}","X_f projection along dimensions x and v_x"];
-%             figure()
-%             for i = 1:3
-%                 subplot(3,1,i)
-%                 Xf.projection(i:i+1).plot()
-%                 xlabel(lab(i))
-%                 ylabel(lab(i+1))
-%                 title(tit(i))
-%             end
+            
+            %%%%%%%%% Invariant set plots %%%%%%%%
+            % Prepare figure
+            lab = ["{\omega}_y","{\beta}","{v_x}","x"];
+            tit = ["{X_f} projection along dimensions {\beta} and {\omega}_y","{X_f} projection along dimensions {v_x} and {\beta}","X_f projection along dimensions x and v_x","X_f projection along dimensions {\omega}_y and x"];
+            figure()
+            for i = 1:3
+                subplot(1,3,i)
+                Xf.projection(i:i+1).plot()
+                ylabel(lab(i+1))
+                xlabel(lab(i))
+                title(tit(i))
+            end
             
             % WITH YALIMP mpc problem
             con = (X(:,2) == A*X(:,1) + B*U(:,1)) + (M*U(:,1) <= m);
@@ -127,31 +130,6 @@ classdef MpcControl_x < MpcControlBase
             obj = 0;
             con = [xs == 0, us == 0];
             
-%             %% NO NEED to compute the terminal set
-%             % Constraints sub_sys x
-%             % x in X = { x | Fx <= f } with x of dim 4
-%             F = [0 1 0 0;
-%                  0 -1 0 0]; 
-%             f = [0.1222; 0.1222];
-%             % model matricies
-%             A = mpc.A;
-%             B = mpc.B;
-%             % cost matrices depending on the inupt and state
-%             Q = 10 * eye(size(mpc.A,2));
-%             R = 1;      
-% 
-%             
-%             % WITH YALIMP mpc problem
-%             con = (X(:,2) == A*X(:,1) + B*U(:,1));
-%             obj = U(:,1)'*R*U(:,1);
-%             for i = 2:N-1
-%                 con = con + (X(:,i+1) == A*X(:,i) + B*U(:,i));
-%                 con = con + (F*X(:,i) <= f);
-%                 obj = obj + X(:,i)'*Q*X(:,i) + U(:,i)'*R*U(:,i);
-%             end
-%             % Final cost and constraints
-%             con = con + (Ff*X(:,N) <= ff);
-%             obj = obj + X(:,N)'*Qf*X(:,N);
 
 
 

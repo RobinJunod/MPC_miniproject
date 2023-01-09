@@ -62,6 +62,14 @@ classdef MpcControl_roll < MpcControlBase
                 end
             end
             [Ff,ff] = double(Xf); 
+            %Prepare figure
+            lab = ["{\omega}_z","{\gamma}"];
+            tit = ["Terminal set of subsystem roll"];
+            figure()   
+            Xf.plot()
+            ylabel(lab(1))
+            xlabel(lab(2))
+            title(tit)
 
             % WITH YALIMP mpc problem
             con = (X(:,2) == A*X(:,1) + B*U(:,1)) + (M*U(:,1) <= m);

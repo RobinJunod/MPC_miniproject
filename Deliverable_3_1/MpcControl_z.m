@@ -59,7 +59,8 @@ classdef MpcControl_z < MpcControlBase
             A = mpc.A;
             B = mpc.B;
             % cost matrices depending on the inupt and state
-            Q = 10 * eye(size(mpc.A,2));
+            Q = 100 * eye(size(mpc.A,2));
+            Q(1) = 50;
             R = 1;
 
             %% compute final cost final constraints
@@ -79,7 +80,17 @@ classdef MpcControl_z < MpcControlBase
                     break
                 end
             end
-            [Ff,ff] = double(Xf); 
+            [Ff,ff] = double(Xf);
+            
+            %Prepare figure
+            lab = ["{v_z}","z"];
+            tit = ["Terminal set of subsystem z"];
+            figure()   
+            Xf.plot()
+            ylabel(lab(1))
+            xlabel(lab(2))
+            title(tit)
+
 
             % WITH YALIMP mpc problem
             con = (X(:,2) == A*X(:,1) + B*U(:,1)) + (M*U(:,1) <= m);

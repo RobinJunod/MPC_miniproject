@@ -61,8 +61,8 @@ classdef MpcControl_z < MpcControlBase
 %             Q = 10 * eye(size(mpc.A,2));
 %             Q(4) = 140;
 %             R = 0.7;
-            Q = [50  0; 0 700];
-            R = 1;
+            Q = [50  0; 0 700]; %wz 50 z 700
+            R = 1;%0.7;%1;
             
 %             [K,~,~] = dlqr(mpc.A,mpc.B,Q,R);
 %             K = -K;
@@ -151,9 +151,11 @@ classdef MpcControl_z < MpcControlBase
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE
             % You can use the matrices mpc.A, mpc.B, mpc.C and mpc.D
+            
             A = mpc.A;
             B = mpc.B;
             C = mpc.C;
+            % Bd = B, Cd = 0
             
             A_bar = [A, B; zeros(1,size(A,2)), 1];
             B_bar = [B; zeros(1,size(B,2))];
@@ -161,13 +163,12 @@ classdef MpcControl_z < MpcControlBase
             
             Mo = ctrb(A_bar',C_bar');
             Ra = rank(Mo);
+            augSS = [A-eye(size(A,2)), B; C, 0];
+            RaSS = rank(augSS);
+            assert((Ra == size(A_bar,2)), "The system is not observable")
+            assert((RaSS == size(augSS,2)), "The system is not observable")
             
-            assert((Ra == size(A_bar,1)), "The system is not observable")
-            
-            %We want the estimator dynamics to be 10x faster than the
-            %plant dynamics
-            
-            L = -place(A_bar',C_bar',[0.01,0.1,0.2])';
+            L = -place(A_bar',C_bar',[0.3,0.15,0.6])';%0.01,0.05,0.1 works at 1.8 mass
         
             
             % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE
