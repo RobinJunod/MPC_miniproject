@@ -42,14 +42,13 @@ classdef MpcControl_roll < MpcControlBase
             A = mpc.A;
             B = mpc.B;
             % cost matricies
-            %Q = 10  * eye(size(mpc.A,2));
             Q = [50, 0;
                  0, 50];
             R = 0.01;
 
             % WITH YALIMP mpc problem
             con = (X(:,2) == A*X(:,1) + B*U(:,1)) + (M*U(:,1) <= m);
-            obj = U(:,1)'*R*U(:,1);
+            obj = (U(:,1)-u_ref)'*R*U(:,1);
             for i = 2:N-1
                 con = con + (X(:,i+1) == A*X(:,i) + B*U(:,i));
                 con = con + (M*U(:,i) <= m);
