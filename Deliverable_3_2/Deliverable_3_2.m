@@ -32,7 +32,7 @@ x_ref = -4;
 
 %Evaluate once and plot optimal openloop trajectory
 U_opt_x(:,end+1) = nan;
-ph_x = rocket.plotvis_sub(T_opt_x, X_opt_x, U_opt_x, sys_x, xs, us); % Plot as usual
+ph_x = rocket.plotvis_sub(T_opt_x, X_opt_x, U_opt_x, sys_x, xs, us); 
 
 %Change open-loop plot color
 for j = 2:length(ph_x.fig.Children)
@@ -62,7 +62,7 @@ y_ref = -4;
 
 % Evaluate once and plot optimal openloop trajectory,
 U_opt_y(:,end+1) = nan;
-ph_y = rocket.plotvis_sub(T_opt_y, X_opt_y, U_opt_y, sys_y, xs, us); % Plot as usual
+ph_y = rocket.plotvis_sub(T_opt_y, X_opt_y, U_opt_y, sys_y, xs, us); 
 %Change open-loop plot color
 for j = 2:length(ph_y.fig.Children)
 for i = 1:length(ph_y.fig.Children(j).Children)
@@ -88,7 +88,7 @@ z_ref = -4;
 
 % Evaluate once and plot optimal openloop trajectory,
 U_opt_z(:,end+1) = nan;
-ph_z = rocket.plotvis_sub(T_opt_z, X_opt_z, U_opt_z + us(3), sys_z, xs, us); % Plot as usual
+ph_z = rocket.plotvis_sub(T_opt_z, X_opt_z, U_opt_z + us(3), sys_z, xs, us); 
 %Change open-loop plot color
 for j = 2:length(ph_z.fig.Children)
 for i = 1:length(ph_z.fig.Children(j).Children)
@@ -116,7 +116,7 @@ roll_ref = 0.61086;
 
 % Evaluate once and plot optimal openloop trajectory,
 U_opt_roll(:,end+1) = nan;
-ph_roll = rocket.plotvis_sub(T_opt_roll, X_opt_roll, U_opt_roll, sys_roll, xs, us); % Plot as usual
+ph_roll = rocket.plotvis_sub(T_opt_roll, X_opt_roll, U_opt_roll, sys_roll, xs, us); 
 %Change open-loop plot color
 for j = 2:length(ph_roll.fig.Children)
 for i = 1:length(ph_roll.fig.Children(j).Children)

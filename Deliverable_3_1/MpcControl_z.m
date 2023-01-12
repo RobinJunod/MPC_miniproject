@@ -49,8 +49,7 @@ classdef MpcControl_z < MpcControlBase
             %       the DISCRETE-TIME MODEL of your system
             
             % SET THE PROBLEM CONSTRAINTS con AND THE OBJECTIVE obj HERE
-            obj = 0;
-            con = [];
+
             %% Constraints/model/cost sub_sys z
             % u in U = { u | Mu <= m } only for the Pavg
             % mpc.UserData.us == us (Pavg)

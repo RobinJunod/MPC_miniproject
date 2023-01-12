@@ -33,9 +33,8 @@ classdef MpcControl_roll < MpcControlBase
             %       the DISCRETE-TIME MODEL of your system
             
             % SET THE PROBLEM CONSTRAINTS con AND THE OBJECTIVE obj HERE
-            obj = 0;
-            con = [];
-            %% No constraints sub_sys roll 
+
+            %% Constraints sub_sys roll 
             % u in U = { u | Mu <= m } only for the d2
             M = [1;-1]; m = [20; 20];
             

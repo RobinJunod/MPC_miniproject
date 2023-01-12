@@ -33,8 +33,6 @@ classdef MpcControl_y < MpcControlBase
             %       the DISCRETE-TIME MODEL of your system
             
             % SET THE PROBLEM CONSTRAINTS con AND THE OBJECTIVE obj HERE
-            obj = 0;
-            con = [];
             
             %% Constraints sub_sys y
             % x in X = { x | Fx <= f } with x of dim 4
@@ -47,14 +45,11 @@ classdef MpcControl_y < MpcControlBase
             A = mpc.A;
             B = mpc.B;
             % cost matrices depending on the inupt and state
-%             Q = 500 * eye(size(mpc.A,2));
-%             R = 0.8;
             Q = [50 0 0 0;
                  0 1 0 0;
                  0 0 1 0;
                  0 0 0 200];
             R = 10;
-
 
             % WITH YALIMP mpc problem
             con = (X(:,2) == A*X(:,1) + B*U(:,1)) + (M*U(:,1) <= m);

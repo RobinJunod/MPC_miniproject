@@ -33,8 +33,6 @@ classdef MpcControl_x < MpcControlBase
             %       the DISCRETE-TIME MODEL of your system
             
             % SET THE PROBLEM CONSTRAINTS con AND THE OBJECTIVE obj HERE
-            obj = 0;
-            con = [];
             
             %% Constraints sub_sys x
             % x in X = { x | Fx <= f } with x of dim 4

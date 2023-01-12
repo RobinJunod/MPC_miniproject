@@ -33,15 +33,14 @@ classdef MpcControl_roll < MpcControlBase
             %       the DISCRETE-TIME MODEL of your system
             
             % SET THE PROBLEM CONSTRAINTS con AND THE OBJECTIVE obj HERE
-            obj = 0;
-            con = [];
-            
+
+            %% Constraints roll subsystem
             % u in U = { u | Mu <= m } constraints
             M = [1;-1]; m = [20; 20];
             % model matricies
             A = mpc.A;
             B = mpc.B;
-            % cost matricies
+            %% cost matricies
             Q = 50 * eye(size(mpc.A,2));
             R = 0.01;
 
